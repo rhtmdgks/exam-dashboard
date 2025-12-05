@@ -37,23 +37,20 @@ function App() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-muted/40">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
-          <div className="flex flex-col">
-            <span className="text-base sm:text-lg font-semibold">2025학년도 2학기 기말고사</span>
-            <span className="text-xs text-muted-foreground">시험 감독관 대시보드</span>
-          </div>
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-muted/40">
       {/* Main Content */}
-      <main className="flex-1 p-3 sm:p-4 md:p-6">
-        <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
-          {/* Top Row: Clock + Stats */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+      <main className="p-2 sm:p-3 md:p-4">
+        <div className="max-w-7xl mx-auto space-y-2">
+          {/* Top Row: Clock + Schedule */}
+          <div className="grid gap-4 md:grid-cols-2">
             <ClockCard />
+            <ScheduleCard currentDay={currentDay} onSelectDay={setCurrentDay} />
+          </div>
+
+          <Separator />
+
+          {/* Bottom Row: Stats + Absent List */}
+          <div className="grid gap-2 sm:gap-3 grid-cols-[repeat(3,minmax(0,1fr))_2fr] md:grid-cols-[repeat(3,minmax(0,140px))_1fr]">
             <StatsCards
               totalStudents={totalStudents}
               presentStudents={presentStudents}
@@ -65,15 +62,6 @@ function App() {
               onOpenMissingModal={() => setShowMissingModal(true)}
               onOpenAbsentModal={() => setShowAbsentModal(true)}
             />
-          </div>
-
-          <Separator />
-
-          {/* Bottom Row: Schedule + Absent List */}
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="md:col-span-2">
-              <ScheduleCard currentDay={currentDay} onSelectDay={setCurrentDay} />
-            </div>
             <AbsentListCard
               absentStudents={absentStudents}
               onRemoveAbsentStudent={removeAbsentStudent}

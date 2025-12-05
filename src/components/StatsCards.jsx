@@ -5,27 +5,27 @@ import { IconUsers, IconUserCheck, IconUserX, IconPlus, IconMinus } from '@table
 function StatCard({ title, value, subtitle, icon: Icon, trend, onClick, onIncrement, onDecrement }) {
   return (
     <Card className={onClick ? 'cursor-pointer hover:bg-accent/50 transition-colors' : ''} onClick={onClick}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-xs sm:text-sm font-medium">{title}</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 pt-2 px-3">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
-      <CardContent>
+      <CardContent className="pb-2 pt-1 px-3">
         <div className="flex items-center justify-between">
           <div className="min-w-0 flex-1">
-            <div className="text-xl sm:text-2xl font-bold">{value}</div>
-            {subtitle && <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{subtitle}</p>}
+            <div className="text-3xl font-bold leading-none">{value}</div>
+            {subtitle && <p className="text-xs text-muted-foreground truncate leading-tight mt-1">{subtitle}</p>}
             {trend && (
-              <p className={`text-[10px] sm:text-xs truncate ${trend.type === 'up' ? 'text-emerald-600' : trend.type === 'down' ? 'text-red-600' : 'text-muted-foreground'}`}>
+              <p className={`text-xs truncate leading-tight mt-1 ${trend.type === 'up' ? 'text-primary' : trend.type === 'down' ? 'text-destructive' : 'text-muted-foreground'}`}>
                 {trend.text}
               </p>
             )}
           </div>
           {(onIncrement || onDecrement) && (
             <div className="flex flex-col gap-1 ml-2">
-              <Button size="icon" variant="outline" className="h-6 w-6 sm:h-7 sm:w-7" onClick={(e) => { e.stopPropagation(); onIncrement?.() }}>
+              <Button size="icon" variant="outline" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); onIncrement?.() }}>
                 <IconPlus className="h-3 w-3" />
               </Button>
-              <Button size="icon" variant="outline" className="h-6 w-6 sm:h-7 sm:w-7" onClick={(e) => { e.stopPropagation(); onDecrement?.() }}>
+              <Button size="icon" variant="outline" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); onDecrement?.() }}>
                 <IconMinus className="h-3 w-3" />
               </Button>
             </div>
