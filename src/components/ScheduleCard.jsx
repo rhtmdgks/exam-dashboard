@@ -139,9 +139,9 @@ function ScheduleCard({ currentDay, onSelectDay }) {
                     <span className={`font-medium ${isRetest ? 'text-xs' : 'text-sm sm:text-base'}`}>{item.period}</span>
                     <StatusBadge status={status} />
                   </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground text-right">
+                  <div className={`font-semibold text-muted-foreground text-right ${isRetest ? 'text-sm' : 'text-base sm:text-lg md:text-xl'}`}>
                     <span className="font-mono">{item.start} - {item.end}</span>
-                    {!isRetest && <span className="hidden sm:inline ml-2 text-xs">(준비령 {item.prep})</span>}
+                    {!isRetest && <span className="hidden sm:inline ml-2 text-xs font-normal">(준비령 {item.prep})</span>}
                   </div>
                 </div>
                 <div className={`font-semibold ${isRetest ? 'text-sm inline ml-2' : 'text-base sm:text-lg md:text-xl mb-2'}`}>{subject}</div>
