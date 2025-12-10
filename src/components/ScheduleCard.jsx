@@ -24,7 +24,7 @@ const periods = [
   { period: '1교시', prep: '08:45', start: '08:50', end: '09:40' },
   { period: '2교시', prep: '10:05', start: '10:10', end: '11:00' },
   { period: '3교시', prep: '11:25', start: '11:30', end: '12:20' },
-  { period: '재시험', prep: '12:20', start: '12:25', end: '12:35' }
+  { period: '재시험', prep: '12:30', start: '12:35', end: '12:45' }
 ]
 
 function ScheduleCard({ currentDay, onSelectDay }) {
