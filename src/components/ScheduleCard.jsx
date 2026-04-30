@@ -5,26 +5,25 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { IconCalendar, IconClock, IconPlayerPlay, IconCheck, IconClockHour3 } from '@tabler/icons-react'
 
-// 시험 날짜: 12월 8일(1일차), 9일(2일차), 10일(3일차), 11일(4일차)
+// 시험 날짜: 5월 4일(1일차), 6일(2일차), 7일(3일차), 8일(4일차)
 const examDates = {
-  1: { month: 12, day: 8 },
-  2: { month: 12, day: 9 },
-  3: { month: 12, day: 10 },
-  4: { month: 12, day: 11 }
+  1: { month: 5, day: 4 },
+  2: { month: 5, day: 6 },
+  3: { month: 5, day: 7 },
+  4: { month: 5, day: 8 }
 }
 
 const scheduleData = {
-  1: ['사회문화/생명과학II', '영어II', '지구과학I/영어권문화'],
-  2: ['화학II', '일본어I', '세계지리/데이터과학'],
-  3: ['기하', '생활과 윤리', '독서', '독서 재시험'],
-  4: ['경제', '수학II', '물리학II']
+  1: ['자습', '화법과 작문', '자습'],
+  2: ['언어와 매체', '자습', '고급수학 1'],
+  3: ['자습', '미적분', '자습'],
+  4: ['윤리와 사상', '영어 독해와 작문', '자습']
 }
 
 const periods = [
   { period: '1교시', prep: '08:45', start: '08:50', end: '09:40' },
   { period: '2교시', prep: '10:05', start: '10:10', end: '11:00' },
-  { period: '3교시', prep: '11:25', start: '11:30', end: '12:20' },
-  { period: '재시험', prep: '12:30', start: '12:35', end: '12:45' }
+  { period: '3교시', prep: '11:25', start: '11:30', end: '12:20' }
 ]
 
 function ScheduleCard({ currentDay, onSelectDay }) {
@@ -98,7 +97,7 @@ function ScheduleCard({ currentDay, onSelectDay }) {
               <IconCalendar className="h-4 w-4" />
               시험 일정
             </CardTitle>
-            <CardDescription className="text-xs">12월 {examDates[currentDay]?.day}일 시험 시간표</CardDescription>
+            <CardDescription className="text-xs">{examDates[currentDay]?.month}월 {examDates[currentDay]?.day}일 시험 시간표</CardDescription>
           </div>
           <Tabs value={currentDay.toString()} onValueChange={(v) => onSelectDay(parseInt(v))}>
             <TabsList className="h-8 sm:h-9">
@@ -116,36 +115,28 @@ function ScheduleCard({ currentDay, onSelectDay }) {
             const { status, progress } = getStatus(item.prep, item.start, item.end)
             const subject = subjects[index] || '-'
             
-            // 3일차가 아닌 경우 재시험 교시는 건너뛰기
-            if (currentDay !== 3 && item.period === '재시험') return null
-            
-            // 재시험 교시는 더 작게 표시
-            const isRetest = item.period === '재시험'
-
             return (
               <div
                 key={index}
-                className={`rounded-lg border transition-all ${
-                  isRetest ? 'p-2' : 'p-3 sm:p-4'
-                } ${
+                className={`rounded-lg border transition-all p-3 sm:p-4 ${
                   status === 'active' ? 'border-emerald-500 bg-emerald-50/50 shadow-sm' :
                   status === 'scheduled' ? 'border-blue-200 bg-blue-50/30' :
                   status === 'done' ? 'opacity-60' : ''
                 }`}
               >
-                <div className={`flex items-center justify-between ${isRetest ? 'mb-0' : 'mb-2'}`}>
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <StatusIcon status={status} />
-                    <span className={`font-medium ${isRetest ? 'text-xs' : 'text-sm sm:text-base'}`}>{item.period}</span>
+                    <span className="font-medium text-sm sm:text-base">{item.period}</span>
                     <StatusBadge status={status} />
                   </div>
-                  <div className={`font-semibold text-muted-foreground text-right ${isRetest ? 'text-sm' : 'text-base sm:text-lg md:text-xl'}`}>
+                  <div className="font-semibold text-muted-foreground text-right text-base sm:text-lg md:text-xl">
                     <span className="font-mono">{item.start} - {item.end}</span>
-                    {!isRetest && <span className="hidden sm:inline ml-2 text-xs font-normal">(준비령 {item.prep})</span>}
+                    <span className="hidden sm:inline ml-2 text-xs font-normal">(준비령 {item.prep})</span>
                   </div>
                 </div>
-                <div className={`font-semibold ${isRetest ? 'text-sm inline ml-2' : 'text-base sm:text-lg md:text-xl mb-2'}`}>{subject}</div>
-                {status === 'active' && !isRetest && (
+                <div className="font-semibold text-base sm:text-lg md:text-xl mb-2">{subject}</div>
+                {status === 'active' && (
                   <Progress value={progress} className="h-1.5 sm:h-2" />
                 )}
               </div>
