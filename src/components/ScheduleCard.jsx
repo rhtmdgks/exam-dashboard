@@ -4,6 +4,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { IconCalendar, IconClock, IconPlayerPlay, IconCheck, IconClockHour3 } from '@tabler/icons-react'
+import { getSeoulCalendarParts } from '@/lib/seoulCalendar'
 
 // 시험 날짜: 5월 4일(1일차), 6일(2일차), 7일(3일차), 8일(4일차)
 const examDates = {
@@ -35,11 +36,10 @@ function ScheduleCard({ currentDay, onSelectDay }) {
   }, [])
 
   const getStatus = (prep, start, end) => {
-    const now = new Date()
-    const koreaTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Seoul" }))
-    const currentMonth = koreaTime.getMonth() + 1
-    const currentDate = koreaTime.getDate()
-    const currentMinutes = koreaTime.getHours() * 60 + koreaTime.getMinutes()
+    const seoul = getSeoulCalendarParts()
+    const currentMonth = seoul.month
+    const currentDate = seoul.day
+    const currentMinutes = seoul.minutesFromMidnight
     
     const examDate = examDates[currentDay]
     

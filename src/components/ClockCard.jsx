@@ -9,20 +9,23 @@ function ClockCard() {
   useEffect(() => {
     const updateTime = () => {
       const now = new Date()
-      const koreaTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Seoul" }))
-      
-      setCurrentDate(koreaTime.toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        weekday: 'long'
-      }))
-      
-      setCurrentTime(koreaTime.toLocaleTimeString('ko-KR', {
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit'
-      }))
+      setCurrentDate(
+        now.toLocaleDateString('ko-KR', {
+          timeZone: 'Asia/Seoul',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          weekday: 'long',
+        })
+      )
+      setCurrentTime(
+        now.toLocaleTimeString('ko-KR', {
+          timeZone: 'Asia/Seoul',
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      )
     }
 
     updateTime()
