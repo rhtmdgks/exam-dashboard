@@ -35,6 +35,8 @@ jobs:
         run: npm ci      # yarn 쓰면 여기 `yarn install`로 바꿔
 
       - name: Build Vite project
+        env:
+          BASE_PATH: /exam-dashboard
         run: npm run build
 
       - name: Upload artifact
