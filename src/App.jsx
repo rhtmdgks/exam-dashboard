@@ -110,6 +110,14 @@ function App() {
           }}
         />
       )}
+
+      <footer className="max-w-7xl mx-auto px-4 pb-4 text-center text-xs text-muted-foreground">
+        <a href={`${import.meta.env.BASE_URL}board.html`} className="underline hover:text-foreground">
+          전자칠판용 경량 페이지 (board.html)
+        </a>
+        <span className="mx-1">·</span>
+        칠판 북마크는 이 링크만 지정하면 됩니다.
+      </footer>
     </div>
   )
 }

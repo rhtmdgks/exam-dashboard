@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>시험 감독 대시보드 · 전자칠판용</title>
+  <style type="text/css">
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      font-size: 15px;
+      color: #171717;
+      background: #f0f0f0;
+    }
+    .banner {
+      background: #1e3a5f;
+      color: #fff;
+      padding: 8px 12px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .wrap { padding: 10px; max-width: 1200px; margin: 0 auto; }
+    .row:after { content: ""; display: table; clear: both; }
+    .col { float: left; width: 100%; padding: 6px; }
+    @media (min-width: 768px) {
+      .col.half { width: 50%; }
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      padding: 12px;
+    }
+    .card h2 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 6px;
+    }
+    .clock-time {
+      font-size: 36px;
+      font-weight: bold;
+      text-align: center;
+      font-family: Consolas, monospace;
+    }
+    .clock-date { text-align: center; color: #555; font-size: 14px; margin-top: 6px; }
+    @media (min-width: 480px) {
+      .clock-time { font-size: 52px; }
+    }
+    @media (min-width: 900px) {
+      .clock-time { font-size: 72px; }
+    }
+    .tabs { margin: 8px 0; }
+    .tabs button {
+      margin: 2px;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .tabs button.on { background: #1e3a5f; color: #fff; border-color: #1e3a5f; }
+    .period {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+    .period.active { border-color: #059669; background: #ecfdf5; }
+    .period.scheduled { border-color: #93c5fd; background: #eff6ff; }
+    .period.done { opacity: 0.65; }
+    .period-head { overflow: hidden; margin-bottom: 6px; }
+    .period-head .left { float: left; }
+    .period-head .right { float: right; text-align: right; font-family: Consolas, monospace; font-weight: bold; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .badge.scheduled { border: 1px solid #2563eb; color: #2563eb; }
+    .badge.active { background: #059669; color: #fff; }
+    .badge.done { background: #e5e5e5; color: #444; }
+    .subject { font-weight: bold; font-size: 17px; clear: both; padding-top: 4px; }
+    .bar { height: 8px; background: #e5e5e5; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+    .bar > div { height: 100%; background: #059669; width: 0; }
+    .stats:after { content: ""; display: table; clear: both; }
+    .stat {
+      float: left;
+      width: 33.33%;
+      padding: 4px;
+    }
+    @media (max-width: 600px) {
+      .stat { width: 100%; float: none; }
+    }
+    .stat-inner {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px;
+      background: #fff;
+      min-height: 100px;
+    }
+    .stat-inner h3 { margin: 0 0 6px 0; font-size: 13px; color: #555; }
+    .stat-val { font-size: 32px; font-weight: bold; }
+    .stat-sub { font-size: 11px; color: #666; margin-top: 4px; }
+    .btn-row { margin-top: 8px; }
+    .btn-row button {
+      width: 36px;
+      height: 28px;
+      margin-right: 4px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+    }
+    .absent-list { max-height: 200px; overflow-y: auto; }
+    .absent-row { padding: 6px 0; border-bottom: 1px solid #eee; overflow: hidden; }
+    .absent-row .num { float: left; font-weight: bold; }
+    .absent-row .meta { float: right; }
+    .absent-row .rm {
+      margin-left: 8px;
+      cursor: pointer;
+      color: #b91c1c;
+      border: none;
+      background: none;
+      font-size: 16px;
+      vertical-align: middle;
+    }
+    .footer-note { font-size: 11px; color: #666; margin-top: 12px; text-align: center; }
+    a.main-app { color: #1e40af; font-size: 12px; }
+    /* 오버레이 모달 */
+    .overlay {
+      display: none;
+      position: fixed;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000;
+      overflow: auto;
+      padding: 16px;
+    }
+    .overlay.show { display: block; }
+    .modal {
+      background: #fff;
+      max-width: 520px;
+      margin: 20px auto;
+      border-radius: 8px;
+      padding: 16px;
+      border: 1px solid #ccc;
+    }
+    .modal h3 { margin-top: 0; }
+    .modal .close { float: right; cursor: pointer; border: none; background: none; font-size: 22px; line-height: 1; }
+    .num-grid button {
+      width: 14.28%;
+      max-width: 48px;
+      height: 36px;
+      margin: 2px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+      font-weight: bold;
+    }
+    .num-grid button:disabled { opacity: 0.35; cursor: not-allowed; }
+    .num-grid button.sel { background: #1e3a5f; color: #fff; border-color: #1e3a5f; }
+    .num-grid button.taken { background: #fee2e2; border-color: #fca5a5; }
+    .reasons button {
+      margin: 4px 4px 0 0;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .r-ill { background: #2563eb; }
+    .r-un { background: #dc2626; }
+    .r-ok { background: #059669; }
+    .r-etc { background: #6b7280; }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    전자칠판 전용 경량 페이지입니다. 인원·결시 데이터는 <strong>이 브라우저(이 기기)에만</strong> 저장됩니다. 다른 PC의 메인 화면과는 연동되지 않습니다.
+  </div>
+  <div class="wrap">
+    <div class="row">
+      <div class="col half">
+        <div class="card">
+          <h2>현재 시간 (서울)</h2>
+          <div class="clock-time" id="clockTime">--:--</div>
+          <div class="clock-date" id="clockDate">--</div>
+        </div>
+      </div>
+      <div class="col half">
+        <div class="card">
+          <h2>시험 일정</h2>
+          <div class="tabs" id="dayTabs"></div>
+          <p id="scheduleTitle" style="margin:4px 0 8px;color:#555;font-size:13px;"></p>
+          <div id="periods"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>인원</h2>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-inner">
+            <h3>재적 인원</h3>
+            <div class="stat-val" id="valTotal">35</div>
+            <div class="stat-sub">클릭해 일괄 입력 또는 아래 ±</div>
+            <div class="btn-row">
+              <button type="button" id="totalMinus">−</button>
+              <button type="button" id="totalPlus">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-inner">
+            <h3>응시 인원</h3>
+            <div class="stat-val" id="valPresent">35</div>
+            <div class="stat-sub" id="valRate">출석률 100%</div>
+            <div class="btn-row">
+              <button type="button" id="presentMinus">−</button>
+              <button type="button" id="presentPlus">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-inner" id="absentStatBox" style="cursor:pointer;">
+            <h3>결시</h3>
+            <div class="stat-val" id="valAbsent">0</div>
+            <div class="stat-sub">탭하여 결시자 등록</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>결시자 명단 <button type="button" id="btnOpenAbsent" style="float:right;font-size:12px;padding:4px 8px;">등록</button></h2>
+      <div style="clear:both"></div>
+      <div id="absentEmpty" style="text-align:center;color:#666;padding:12px;">결시자가 없습니다.</div>
+      <div class="absent-list" id="absentList" style="display:none;"></div>
+    </div>
+
+    <p class="footer-note">
+      메인 대시보드(React)는 <a class="main-app" href="./index.html" id="linkMain">여기</a> · 문제가 있으면 브라우저 저장소를 지우고 새로고침하세요.
+    </p>
+  </div>
+
+  <div class="overlay" id="modalTotal">
+    <div class="modal">
+      <button type="button" class="close" data-close="modalTotal">&times;</button>
+      <h3>재적 인원 입력</h3>
+      <p style="font-size:13px;color:#555;">숫자만 입력 후 확인</p>
+      <input type="number" id="inputTotal" min="0" max="999" style="width:100%;font-size:18px;padding:8px;" />
+      <div style="margin-top:12px;">
+        <button type="button" id="btnSaveTotal" style="padding:8px 16px;cursor:pointer;">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="modalAbsent">
+    <div class="modal" style="max-width:640px;">
+      <button type="button" class="close" data-close="modalAbsent">&times;</button>
+      <h3>결시자 등록</h3>
+      <p style="font-size:13px;color:#555;">번호 선택 → 사유 선택</p>
+      <p style="font-size:12px;">선택된 번호: <strong id="lblSelNum">없음</strong></p>
+      <div class="num-grid" id="numGrid" style="margin:8px 0;"></div>
+      <div class="reasons" id="reasonBtnWrap">
+        <button type="button" class="r-ill" data-reason="질병">질병</button>
+        <button type="button" class="r-un" data-reason="미인정">미인정</button>
+        <button type="button" class="r-ok" data-reason="인정">인정</button>
+        <button type="button" class="r-etc" data-reason="기타">기타</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+(function () {
+  var LS_KEY = 'exam_board_state_v1';
+
+  var examDates = { 1: { month: 5, day: 4 }, 2: { month: 5, day: 6 }, 3: { month: 5, day: 7 }, 4: { month: 5, day: 8 } };
+  var scheduleData = {
+    1: ['자습', '화법과 작문', '자습'],
+    2: ['언어와 매체', '자습', '고급수학 1'],
+    3: ['자습', '미적분', '자습'],
+    4: ['윤리와 사상', '영어 독해와 작문', '자습']
+  };
+  var periods = [
+    { period: '1교시', prep: '08:45', start: '08:50', end: '09:40' },
+    { period: '2교시', prep: '10:05', start: '10:10', end: '11:00' },
+    { period: '3교시', prep: '11:25', start: '11:30', end: '12:20' }
+  ];
+
+  var state = {
+    currentDay: 1,
+    totalStudents: 35,
+    presentStudents: 35,
+    absents: [],
+    selectedNum: null
+  };
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      if (!raw) return;
+      var o = JSON.parse(raw);
+      if (typeof o.currentDay === 'number') state.currentDay = o.currentDay;
+      if (typeof o.totalStudents === 'number') state.totalStudents = o.totalStudents;
+      if (typeof o.presentStudents === 'number') state.presentStudents = o.presentStudents;
+      if (o.absents && o.absents.length) state.absents = o.absents;
+    } catch (e) {}
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify({
+        currentDay: state.currentDay,
+        totalStudents: state.totalStudents,
+        presentStudents: state.presentStudents,
+        absents: state.absents
+      }));
+    } catch (e) {}
+  }
+
+  function seoulWall(now) {
+    var d = now || new Date();
+    var utcMs = d.getTime() + d.getTimezoneOffset() * 60000;
+    var seoul = new Date(utcMs + 9 * 3600000);
+    return {
+      y: seoul.getUTCFullYear(),
+      m: seoul.getUTCMonth() + 1,
+      day: seoul.getUTCDate(),
+      h: seoul.getUTCHours(),
+      min: seoul.getUTCMinutes(),
+      s: seoul.getUTCSeconds(),
+      minFromMidnight: seoul.getUTCHours() * 60 + seoul.getUTCMinutes()
+    };
+  }
+
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+  function updateClock() {
+    var w = seoulWall(new Date());
+    document.getElementById('clockTime').innerHTML = pad(w.h) + ':' + pad(w.min);
+    var wk = ['일', '월', '화', '수', '목', '금', '토'];
+    try {
+      var s = new Date();
+      var str = s.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+      document.getElementById('clockDate').innerHTML = str;
+    } catch (e) {
+      document.getElementById('clockDate').innerHTML = w.y + '년 ' + w.m + '월 ' + w.day + '일 (' + wk[new Date(w.y, w.m - 1, w.day).getDay()] + ')';
+    }
+  }
+
+  function toMinutes(t) {
+    var p = t.split(':');
+    return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+  }
+
+  function getStatus(prep, start, end) {
+    var seoul = seoulWall(new Date());
+    var currentMonth = seoul.m;
+    var currentDate = seoul.day;
+    var currentMinutes = seoul.minFromMidnight;
+    var examDate = examDates[state.currentDay];
+
+    if (currentMonth < examDate.month || (currentMonth === examDate.month && currentDate < examDate.day)) {
+      return { status: 'scheduled', progress: 0 };
+    }
+    if (currentMonth > examDate.month || (currentMonth === examDate.month && currentDate > examDate.day)) {
+      return { status: 'done', progress: 100 };
+    }
+    var startMin = toMinutes(start);
+    var endMin = toMinutes(end);
+    if (currentMinutes > endMin) return { status: 'done', progress: 100 };
+    if (currentMinutes >= startMin) {
+      return { status: 'active', progress: ((currentMinutes - startMin) / (endMin - startMin)) * 100 };
+    }
+    return { status: 'scheduled', progress: 0 };
+  }
+
+  function renderDayTabs() {
+    var el = document.getElementById('dayTabs');
+    var html = '';
+    var d;
+    for (d = 1; d <= 4; d++) {
+      html += '<button type="button" class="' + (state.currentDay === d ? 'on' : '') + '" data-day="' + d + '">' + d + '일차</button>';
+    }
+    el.innerHTML = html;
+    var btns = el.getElementsByTagName('button');
+    var i;
+    for (i = 0; i < btns.length; i++) {
+      btns[i].onclick = (function (day) {
+        return function () {
+          state.currentDay = day;
+          saveState();
+          renderDayTabs();
+          renderSchedule();
+        };
+      })(parseInt(btns[i].getAttribute('data-day'), 10));
+    }
+  }
+
+  function renderSchedule() {
+    var ed = examDates[state.currentDay];
+    document.getElementById('scheduleTitle').innerHTML = ed.month + '월 ' + ed.day + '일 시험 시간표';
+    var subjects = scheduleData[state.currentDay] || [];
+    var html = '';
+    var i;
+    for (i = 0; i < periods.length; i++) {
+      var item = periods[i];
+      var st = getStatus(item.prep, item.start, item.end);
+      var subj = subjects[i] || '-';
+      var rowClass = 'period ' + st.status;
+      var badge = st.status === 'done' ? '<span class="badge done">종료</span>' :
+        st.status === 'active' ? '<span class="badge active">진행중</span>' :
+        '<span class="badge scheduled">예정</span>';
+      var bar = '';
+      if (st.status === 'active') {
+        bar = '<div class="bar"><div style="width:' + Math.round(st.progress) + '%"></div></div>';
+      }
+      html += '<div class="' + rowClass + '">' +
+        '<div class="period-head"><span class="left"><strong>' + item.period + '</strong>' + badge + '</span>' +
+        '<span class="right">' + item.start + ' - ' + item.end + ' <span style="font-size:11px;font-weight:normal">(준비령 ' + item.prep + ')</span></span></div>' +
+        '<div class="subject">' + escapeHtml(subj) + '</div>' + bar + '</div>';
+    }
+    document.getElementById('periods').innerHTML = html;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function absentCount() {
+    return state.totalStudents - state.presentStudents;
+  }
+
+  function renderStats() {
+    document.getElementById('valTotal').innerHTML = state.totalStudents;
+    document.getElementById('valPresent').innerHTML = state.presentStudents;
+    document.getElementById('valAbsent').innerHTML = absentCount();
+    var rate = state.totalStudents > 0 ? ((state.presentStudents / state.totalStudents) * 100).toFixed(1) : '0';
+    document.getElementById('valRate').innerHTML = '출석률 ' + rate + '%';
+  }
+
+  function renderAbsents() {
+    var list = document.getElementById('absentList');
+    var empty = document.getElementById('absentEmpty');
+    if (!state.absents.length) {
+      list.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    list.style.display = 'block';
+    var html = '';
+    var i;
+    for (i = 0; i < state.absents.length; i++) {
+      var a = state.absents[i];
+      html += '<div class="absent-row"><span class="num">' + escapeHtml(a.number) + '번</span>' +
+        '<span class="meta"><span style="border:1px solid #ccc;padding:2px 6px;border-radius:4px;font-size:12px;">' + escapeHtml(a.reason) + '</span>' +
+        '<button type="button" class="rm" data-idx="' + i + '">\u2715</button></span></div>';
+    }
+    list.innerHTML = html;
+    var rms = list.getElementsByClassName('rm');
+    for (i = 0; i < rms.length; i++) {
+      rms[i].onclick = (function (idx) {
+        return function () {
+          state.absents.splice(idx, 1);
+          if (state.presentStudents < state.totalStudents) state.presentStudents++;
+          saveState();
+          renderAbsents();
+          renderStats();
+        };
+      })(parseInt(rms[i].getAttribute('data-idx'), 10));
+    }
+  }
+
+  function openModal(id) {
+    document.getElementById(id).className = 'overlay show';
+  }
+  function closeModal(id) {
+    document.getElementById(id).className = 'overlay';
+  }
+
+  function buildNumGrid() {
+    var g = document.getElementById('numGrid');
+    var html = '';
+    var n;
+    for (n = 1; n <= 35; n++) {
+      var taken = false;
+      var j;
+      for (j = 0; j < state.absents.length; j++) {
+        if (parseInt(state.absents[j].number, 10) === n) { taken = true; break; }
+      }
+      var cls = '';
+      if (state.selectedNum === n) cls = ' sel';
+      else if (taken) cls = ' taken';
+      html += '<button type="button" data-num="' + n + '"' + (taken ? ' disabled' : '') + ' class="' + cls.trim() + '">' + n + '</button>';
+    }
+    g.innerHTML = html;
+    var btns = g.getElementsByTagName('button');
+    var i;
+    for (i = 0; i < btns.length; i++) {
+      if (btns[i].disabled) continue;
+      btns[i].onclick = (function (num) {
+        return function () {
+          state.selectedNum = num;
+          document.getElementById('lblSelNum').innerHTML = String(num);
+          buildNumGrid();
+        };
+      })(parseInt(btns[i].getAttribute('data-num'), 10));
+    }
+  }
+
+  function openAbsentModal() {
+    state.selectedNum = null;
+    document.getElementById('lblSelNum').innerHTML = '없음';
+    buildNumGrid();
+    openModal('modalAbsent');
+  }
+
+  document.getElementById('totalPlus').onclick = function () {
+    state.totalStudents++;
+    if (state.presentStudents > state.totalStudents) state.presentStudents = state.totalStudents;
+    saveState();
+    renderStats();
+  };
+  document.getElementById('totalMinus').onclick = function () {
+    if (state.totalStudents > 0) state.totalStudents--;
+    if (state.presentStudents > state.totalStudents) state.presentStudents = state.totalStudents;
+    saveState();
+    renderStats();
+  };
+  document.getElementById('presentPlus').onclick = function () {
+    if (state.presentStudents < state.totalStudents) state.presentStudents++;
+    saveState();
+    renderStats();
+  };
+  document.getElementById('presentMinus').onclick = function () {
+    if (state.presentStudents > 0) state.presentStudents--;
+    saveState();
+    renderStats();
+  };
+
+  document.getElementById('valTotal').parentNode.onclick = function (e) {
+    if (e.target.tagName === 'BUTTON') return;
+    document.getElementById('inputTotal').value = state.totalStudents;
+    openModal('modalTotal');
+  };
+  document.getElementById('btnSaveTotal').onclick = function () {
+    var v = parseInt(document.getElementById('inputTotal').value, 10);
+    if (isNaN(v) || v < 0) v = 0;
+    state.totalStudents = v;
+    if (state.presentStudents > state.totalStudents) state.presentStudents = state.totalStudents;
+    saveState();
+    closeModal('modalTotal');
+    renderStats();
+    renderAbsents();
+  };
+
+  document.getElementById('absentStatBox').onclick = function () { openAbsentModal(); };
+  document.getElementById('btnOpenAbsent').onclick = function () { openAbsentModal(); };
+
+  var closes = document.getElementsByClassName('close');
+  var c;
+  for (c = 0; c < closes.length; c++) {
+    closes[c].onclick = function () {
+      closeModal(this.getAttribute('data-close'));
+    };
+  }
+  document.getElementById('modalTotal').onclick = function (e) {
+    if (e.target === this) closeModal('modalTotal');
+  };
+  document.getElementById('modalAbsent').onclick = function (e) {
+    if (e.target === this) closeModal('modalAbsent');
+  };
+
+  (function wireReasonButtons() {
+    var wrap = document.getElementById('reasonBtnWrap');
+    var ch = wrap.getElementsByTagName('button');
+    var r;
+    for (r = 0; r < ch.length; r++) {
+      ch[r].onclick = function () {
+        if (!state.selectedNum) {
+          alert('번호를 먼저 선택하세요.');
+          return;
+        }
+        var reason = this.getAttribute('data-reason');
+        state.absents.push({ number: String(state.selectedNum), reason: reason });
+        state.absents.sort(function (a, b) { return parseInt(a.number, 10) - parseInt(b.number, 10); });
+        if (state.presentStudents > 0) state.presentStudents--;
+        state.selectedNum = null;
+        saveState();
+        closeModal('modalAbsent');
+        renderAbsents();
+        renderStats();
+      };
+    }
+  })();
+
+  loadState();
+  renderDayTabs();
+  renderSchedule();
+  renderStats();
+  renderAbsents();
+  updateClock();
+  setInterval(updateClock, 1000);
+  setInterval(function () { renderSchedule(); }, 1000);
+
+  var linkMain = document.getElementById('linkMain');
+  if (linkMain) {
+    var path = window.location.pathname || '';
+    if (path.indexOf('/exam-dashboard') !== -1) {
+      linkMain.href = './index.html';
+    }
+  }
+})();
+  </script>
+</body>
+</html>
